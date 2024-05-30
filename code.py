@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-input_video = "video4.mp4"
+input_video = "original_video.mp4"
 
 def region_of_interest(image):
     height, width = image.shape[:2]
@@ -19,10 +19,9 @@ def process_lines(lines, frame_shape):
     filtered_lines = []
     for line in lines:
         for x1, y1, x2, y2 in line:
-            # Filtrar linhas baseadas em inclinação e comprimento
             if abs(y2 - y1) / abs(x2 - x1) > 0.5:
                 length = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-                if length > frame_shape[1] * 0.2:  # linhas devem ter pelo menos 20% da largura da imagem
+                if length > frame_shape[1] * 0.2:  
                     filtered_lines.append(line)
     return filtered_lines
 
@@ -37,16 +36,15 @@ def vid_inf(vid_path):
     out = cv2.VideoWriter(output_video, fourcc, fps, frame_size)
 
     if not cap.isOpened():
-        print("Erro ao abrir o arquivo de vídeo")
+        print("Error opening video file")
         return
 
     while cap.isOpened():
         ret, frame = cap.read()
         if ret:
-            # Filtra por cores para destacar linhas amarelas e brancas
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            mask_yellow = cv2.inRange(hsv, (20, 100, 100), (30, 255, 255))  # Ajustar conforme necessário
-            mask_white = cv2.inRange(hsv, (0, 0, 200), (180, 25, 255))      # Ajustar conforme necessário
+            mask_yellow = cv2.inRange(hsv, (20, 100, 100), (30, 255, 255)) 
+            mask_white = cv2.inRange(hsv, (0, 0, 200), (180, 25, 255))      
             mask_lane = cv2.bitwise_or(mask_yellow, mask_white)
             edges = cv2.Canny(mask_lane, 100, 200)
             roi = region_of_interest(edges)
